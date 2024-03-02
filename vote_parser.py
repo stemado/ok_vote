@@ -1,49 +1,27 @@
-import requests
-import html5lib
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-
-def fetch_url(url):
-    full_url = urljoin(base_url, url)
-    response = requests.get(full_url)
-    response.raise_for_status()
-
-    return response.text
-
-def extract_text(text):
-
-    soup = BeautifulSoup(text, 'html5lib')
-
-    return soup
-
-def get_links(soup):
-    links = []
-    for link in soup.find_all('a'):
-        href = link.get('href')
-        full_url = urljoin(base_url,href)
-        links.append(full_url)
-    return links
+from file_writer import write_to_file
 
 
+from web_data_fetcher import get_all_page_content
+from word_doc_helper import doc_to_docx, get_word_document_text
 
-base_url = 'http://webserver1.lsb.state.ok.us/cf/2021-22%20SUPPORT%20DOCUMENTS/votes/House/'
+# Option 1: Text from Html
+# bill_url = 'HB4327_votes.htm'
+#
+# context = get_all_page_content(bill_url)
+#
+# write_to_file('bill_' + bill_url + '.txt', context)
+#
+# print(context)
 
-base_page = fetch_url('')
-base_text = extract_text(base_page)
-all_links = get_links(base_text)
+# Option 2: Word Document
+# Requires converting the doc to docx
+bill_url = '2023 HLeg Day61'
+doc_file_path = r"C:\Users\sdoherty.ANTFARMLLC\Downloads\2023 HLeg Day61.doc"
+docx_file = r"C:\Users\sdoherty.ANTFARMLLC\Downloads\2023 HLeg Day61.docx"
 
-with(open('house_vote_urls.txt', 'w')) as f:
-    for link in all_links:
-        f.write(link + '\n')
-    f.close()
+doc_to_docx(doc_file_path, docx_file)
+text = get_word_document_text(docx_file)
 
-for link in all_links:
-    page_text = fetch_url(link)
-    page_soup = extract_text(page_text)
-    all_links += get_links(page_soup)
+print(text)
 
-with open('votes.txt', 'w') as f:
-    for link in all_links:
-        f.write(link + '\n')
-    f.close()
-
+write_to_file('bill_' + bill_url + '.txt', text)
