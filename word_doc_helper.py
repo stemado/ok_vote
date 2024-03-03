@@ -1,5 +1,5 @@
-import comtypes.client
 from docx import Document
+import platform
 
 def get_word_document_text(file):
     """
@@ -23,11 +23,22 @@ def get_word_document_headers(file):
     return headers
 
 
-def doc_to_docx(doc_path, docx_path):
+def doc_to_docx(doc_path):
+    if platform.system() != 'Windows':
+        print("This function is only available on Microsoft platforms.")
+        return
+
+    import comtypes.client
+
+    if doc_path.endswith('.docx'):
+        return
+
     # Initialize the Word application
     word = comtypes.client.CreateObject('Word.Application')
     word.Visible = False
 
+    # create docx from doc
+    docx_path = doc_path + "x"
     # Open the .doc file
     doc = word.Documents.Open(doc_path)
 
@@ -37,3 +48,5 @@ def doc_to_docx(doc_path, docx_path):
     # Close Word
     doc.Close()
     word.Quit()
+
+    return docx_path
