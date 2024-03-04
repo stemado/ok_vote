@@ -1,5 +1,16 @@
 import re
+from enum import Enum
+
+from Classes.Member import Member
 from ok_legislature_config import ok_file_sections
+
+
+class Vote(Enum):
+    AYE = "Aye:"
+    NAY = "Nay:"
+    CP = "Constitutional Priv:"
+    EXCUSED = "Excused:"
+    VACANCY = "Vacancy:"
 
 
 class VoteDetail:
@@ -41,46 +52,91 @@ class VoteDetail:
     def __str__(self):
         return f"VoteDetail({self.unique_index}, {self.bill_number}, {self.vote_type}, {self.yea}, {self.nay}, {self.cp}, {self.excused}, {self.vacant}, {self.result}, {self.location}, {self.date}, {self.time})"
 
+    @classmethod
+    def parse(cls, text: [str]):
+        previous_line = None
+        all_members = list[Member]
+        for line in text:
+            if line == "GENERAL ORDER" or line == '':
+                continue
 
-# Updated extract_vote_details function to handle multiple bills based on "GENERAL ORDER" sections
+            bill_detail = line.lstrip()
 
+            # set bill number
+            cls.bill_number = cls.find_hb_pattern(bill_detail)
 
-def extract_section_by_keyword(text, keyword):
-    """
-    Extracts a section from the text starting with the given keyword until it reaches text with all capital letters.
+            # set vote type
+            if bill_detail.isupper():
+                cls.vote_type = bill_detail.upper()
 
-    :param text: The input text from which sections are extracted.
-    :param keyword: The keyword to search for in the text.
-    :return: Extracted section of the text.
-    """
-    # Define a regex pattern to find the section
-    # The pattern looks for the keyword, then captures everything until it finds a line with all capital letters
-    pattern = rf"{keyword}(.*?)(?=\n[A-Z\s]+$)"
+            # set result (pass,fail)
+            if previous_line.startswith('Vacancy'):
+                cls.result = cls.extract_pass_fail(line)
 
-    # Use regex to find all matches
-    matches = re.findall(pattern, text, re.DOTALL)
+            # sending entire text body since we now have this split
+            # and should be faster to parse now
+            aye_members, cls.yea = cls.extract_votes(text, Vote.AYE)
+            nay_members, cls.nay = cls.extract_votes(text, Vote.NAY)
 
-    # Join all matches to get the full section
-    section = "\n".join(matches)
+            for member in aye_members:
+                print('AYE: ' + member)
 
-    return section
+            for member in nay_members:
+                print('NAY: ' + member)
 
-    # Example usage (commented out to prevent execution)
-    # text = "Your input text here"
-    # keyword = "HOUSE JOURNAL"
-    # extracted_section = extract_section_by_keyword(text, keyword)
-    # print(extracted_section)
+            # store previous line for referencing
+            previous_line = line
 
+    @classmethod
+    def extract_votes(cls, lines, vote_type: Vote):
+        aye_votes = []
+        count = None
 
-def in_current_section(text: str) -> bool:
-    return not text.isupper()
+        for line in lines:
+            if line.startswith(vote_type):
+                # Remove "Aye:" and split the line into names
+                names = line[4:].split(',')
+                # Remove spaces and empty strings
+                names = [name.strip() for name in names if name.strip()]
+                aye_votes.extend(names)
 
+            # Check for the pattern .--#
+            match = re.search(r'\.--(\d+)', line)
+            if match:
+                count = match.group(1)
+                break  # Exit the loop after finding the count
 
-def is_empty(text: str) -> bool:
-    return not bool(text.strip())
+        return aye_votes, count
 
-# Test the function with the provided sample text
-# Uncomment the below lines to test
-# vote_details = extract_vote_details(sample_text)
-# print(vote_details)
+    @classmethod
+    def extract_pass_fail(cls, text):
+        """
+        Extracts 'Pass' or 'Fail' from a given text string.
+        """
+        # Regular expression to find 'Pass' or 'Fail'
+        pattern = r'\b(Pass|Fail)\b'
+        match = re.search(pattern, text, re.IGNORECASE)
+
+        if match:
+            return match.group()
+        else:
+            return None
+
+    @classmethod
+    def find_hb_pattern(cls, text):
+        pattern = r"[A-Z]{2} \d+"
+        match = re.search(pattern, text)
+        if match:
+            return match.group()
+        else:
+            return "No match found"
+
+    @classmethod
+    def in_current_section(cls, text: str) -> bool:
+        return not text.isupper()
+
+    @classmethod
+    def is_empty(cls, text: str) -> bool:
+        return not bool(text.strip())
+
 
