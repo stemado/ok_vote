@@ -1,6 +1,5 @@
 import os
 import subprocess
-
 from docx import Document
 import platform
 

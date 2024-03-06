@@ -83,11 +83,11 @@ def open_file(file_path):
 
 # Program starts here
 
-root = tk.Tk()
-root.geometry("300x300")
-label = tk.Label(root, text="File Selector (.txt, .html, .pdf)")
-label.pack()
-button = tk.Button(root, text="Browse...", command=select_file)
-button.pack()
-
-root.mainloop()
+# root = tk.Tk()
+# root.geometry("300x300")
+# label = tk.Label(root, text="File Selector (.txt, .html, .pdf)")
+# label.pack()
+# button = tk.Button(root, text="Browse...", command=select_file)
+# button.pack()
+#
+# root.mainloop()

@@ -1,3 +1,9 @@
+import csv
+import os
+
+import pandas as pd
+
+
 def write_links_to_file(links, filename):
     with open(filename, 'w') as f:
         for link in links:
@@ -8,6 +14,15 @@ def write_to_file(filename, content):
     with open(filename, 'w') as f:
         f.write(content)
         f.write('\n')
+
+# https://chat.openai.com/share/e/9aec4b9b-5b41-4341-b5ff-db84a949b090
+def write_to_csv(filename, content):
+
+    # Convert to DataFrame
+    df = pd.DataFrame(content)
+    # Write to CSV
+    df.to_csv(filename, index=False)
+
 
 
 def split_text_by_general_order(text):

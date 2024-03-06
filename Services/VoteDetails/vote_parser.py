@@ -1,32 +1,45 @@
-import re
-import pandas as pd
 from Classes.VoteDetail import VoteDetail
-from vote_detail_repo import insert_vote_detail
-from file_writer import write_to_file, split_text_by_all_caps_lines, split_text_by_general_order
-from web_data_fetcher import get_house_doc_from_link
-from word_doc_helper import doc_to_docx, get_word_document_text
+from Database.DbContext import DbContext
+from Services.Files.file_writer import split_text_by_general_order, write_to_csv
+from Helpers.word_doc_helper import doc_to_docx, get_word_document_text
 
 # Word Document
 # Requires converting the doc to docx
 
 def vote_parser(doc_file):
+    db_context = DbContext()
     vote_details = list()
     docx_file = doc_to_docx(doc_file)
     text = get_word_document_text(docx_file)
-    vote_detail = VoteDetail('', '', '', 0, 0, '', '', '', '', '')
-    vote_detail.location = parse_journal_location(text.split('\n'))
+    location = parse_journal_location(text.split('\n'))
 
     general_orders = split_text_by_general_order(text)
 
+    unique_id = 1
     for general_order in general_orders:
+        vote_detail = VoteDetail(unique_id, None, None, None, None, None, None, None, None, location)
+
         parsed_text = general_order.split('\n')
         vote_detail.parse(parsed_text)
         vote_details.append(vote_detail)
+        unique_id += 1
 
-    current_vote = None
     try:
+        # store the records to a database for easier future use
         for vote_detail in vote_details:
-            insert_vote_detail(vote_details)
+            if vote_detail.bill_number is not None and vote_detail.bill_number.startswith('[') and vote_detail.bill_number.endswith(']'):
+                continue
+
+            db_context.insert_vote_detail(vote_detail.to_dict())
+
+        # Convert to dict for saving
+        dict_content = [item.to_dict() for item in vote_details]
+
+
+        new_extension = ".csv"
+        new_filename = docx_file.rsplit('.', 1)[0] + new_extension
+        # But for now, just write the vote_details to a csv
+        write_to_csv(new_filename, dict_content)
 
     except Exception as error:
         print(f"An exception occurred save vote detail to the database {str(vote_detail)}:", error)  #

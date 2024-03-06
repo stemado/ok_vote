@@ -6,7 +6,7 @@ import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
 import urllib.parse
-from ok_legislature_config import base_house_doc_url
+from Configuration.OkLegislativeConfig import base_house_doc_url
 
 
 def get_house_txt_from_link(url):

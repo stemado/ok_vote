@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
-from ok_legislature_config import base_house_support_docs_url
-from web_data_fetcher import get_house_doc_from_link, extract_page_text
+from Configuration.OkLegislativeConfig import base_house_support_docs_url
+from Helpers.web_data_helper import get_house_doc_from_link, extract_page_text
 
 
 def process_links(links):
