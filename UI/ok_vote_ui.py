@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QWidget, QLabel
 
 from Helpers.link_helper import extract_links
 from Helpers.web_data_helper import get_house_doc_from_link, extract_page_text
@@ -12,6 +12,10 @@ from Services.VoteDetails.vote_parser import vote_parser
 class OkVoteUi(QWidget):
     def __init__(self):
         super().__init__()
+        self.single_doc_button = None
+        self.text_box = None
+        self.url_link_label = None
+        self.url_label = None
         self.init_ui()
 
     def init_ui(self):
@@ -22,20 +26,20 @@ class OkVoteUi(QWidget):
         layout = QVBoxLayout()
 
         # Label for the URL Text Box
-        self.urlLabel = QLabel('<strong>URL to House Journal Doc File</strong>')
-        layout.addWidget(self.urlLabel)
-        layout.setAlignment(self.urlLabel, Qt.AlignCenter)
-        self.urlLinkLabel = QLabel('<strong>Copy and Paste Any .doc File Link From:</strong><br><br>http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/\n\nThe Final File Is Saved To Your Downloads Folder As CSV')
-        layout.addWidget(self.urlLinkLabel)
-        layout.setAlignment(self.urlLinkLabel, Qt.AlignCenter)
+        self.url_label = QLabel('<strong>URL to House Journal Doc File</strong>')
+        layout.addWidget(self.url_label)
+        layout.setAlignment(self.url_label, Qt.AlignCenter)
+        self.url_link_label = QLabel('<strong>Copy and Paste Any .doc File Link From:</strong><br><br>http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/\n\nThe Final File Is Saved To Your Downloads Folder As CSV')
+        layout.addWidget(self.url_link_label)
+        layout.setAlignment(self.url_link_label, Qt.AlignCenter)
         # URL For Doc File Text Box
         default_doc = 'http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/2022%20HLeg%20Day22.doc'
-        self.textBox = QLineEdit(self)
-        self.textBox.setText(default_doc)
-        self.textBox.setFixedHeight(50)
-        self.textBox.setFixedWidth(1800)
-        layout.addWidget(self.textBox)
-        layout.setAlignment(self.textBox, Qt.AlignCenter)
+        self.text_box = QLineEdit(self)
+        self.text_box.setText(default_doc)
+        self.text_box.setFixedHeight(50)
+        self.text_box.setFixedWidth(1800)
+        layout.addWidget(self.text_box)
+        layout.setAlignment(self.text_box, Qt.AlignCenter)
 
         # Get Single Doc Url Button
         self.single_doc_button = QPushButton('Get Votes', self)
@@ -57,14 +61,14 @@ class OkVoteUi(QWidget):
 
     def on_click(self):
         # Action to perform when button is clicked
-        entered_text = self.textBox.text()
-        print(f"Submitted url: {entered_text}")
+        entered_text = self.text_box.text()
+        print(f"URL: {entered_text}")
         self.return_all_oklahoma_files_locally()
 
     def on_get_url_click(self):
         # Action to perform when button is clicked
-        url = self.textBox.text()
-        print(f"Submitted Url: {url}")
+        url = self.text_box.text()
+        print(f"URL: {url}")
         doc_save_path = self.return_oklahoma_file_locally(url)
         vote_parser(doc_save_path)
 
