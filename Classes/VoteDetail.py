@@ -1,6 +1,7 @@
+import datetime
 import re
 from enum import Enum
-
+import sqlite3
 from Classes.Member import Member
 from ok_legislature_config import ok_file_sections
 
@@ -18,8 +19,7 @@ class VoteDetail:
     A class representing the details of a vote in a legislative process.
     """
 
-    def __init__(self, unique_index, bill_number, vote_type, yea, nay, cp, excused, vacant, result, location, date,
-                 time):
+    def __init__(self, unique_index, bill_number, vote_type, yea, nay, cp, excused, vacant, result, location):
         """
         Initialize the VoteDetail class with given properties.
 
@@ -46,8 +46,8 @@ class VoteDetail:
         self.vacant = vacant
         self.result = result
         self.location = location
-        self.date = date
-        self.time = time
+        self.date = datetime.datetime
+        self.time = datetime.time
 
     def __str__(self):
         return f"VoteDetail({self.unique_index}, {self.bill_number}, {self.vote_type}, {self.yea}, {self.nay}, {self.cp}, {self.excused}, {self.vacant}, {self.result}, {self.location}, {self.date}, {self.time})"
@@ -139,4 +139,12 @@ class VoteDetail:
     def is_empty(cls, text: str) -> bool:
         return not bool(text.strip())
 
-
+    # Function to insert a new VoteDetail
+    def insert_vote_detail(vote_detail):
+        cursor.execute('''
+        INSERT INTO votes (unique_index, bill_number, vote_type, yea, nay, cp, excused, vacant, result, location, date, time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (vote_detail.unique_index, vote_detail.bill_number, vote_detail.vote_type, vote_detail.yea,
+              vote_detail.nay, vote_detail.cp, vote_detail.excused, vote_detail.vacant, vote_detail.result,
+              vote_detail.location, vote_detail.date, vote_detail.time))
+        conn.commit()
