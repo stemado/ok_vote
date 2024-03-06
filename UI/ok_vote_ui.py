@@ -63,7 +63,10 @@ class OkVoteUi(QWidget):
         # Action to perform when button is clicked
         entered_text = self.text_box.text()
         print(f"URL: {entered_text}")
-        self.return_all_oklahoma_files_locally()
+        urls = self.return_all_oklahoma_files_locally()
+        for url in urls:
+            doc_save_path = self.return_oklahoma_file_locally(url)
+            vote_parser(doc_save_path)
 
     def on_get_url_click(self):
         # Action to perform when button is clicked
@@ -84,4 +87,5 @@ class OkVoteUi(QWidget):
         # Skip first link since it is base url
         all_links.pop(0)
         # Write urls
-        write_links_to_file(all_links, 'tests/SampleOutput/house_vote_doc_urls.txt')
+        return all_links
+        # write_links_to_file(all_links, 'tests/SampleOutput/house_vote_doc_urls.txt')
