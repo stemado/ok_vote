@@ -1,5 +1,5 @@
-from Classes.VoteDetail import VoteDetail
-from Database.DbContext import DbContext
+from Classes.vote_detail import VoteDetail
+from Database.db_config import DbContext
 from Services.Files.file_writer import split_text_by_general_order, write_to_csv
 from Helpers.word_doc_helper import doc_to_docx, get_word_document_text
 

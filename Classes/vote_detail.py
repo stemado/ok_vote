@@ -1,7 +1,7 @@
 import datetime
 import re
 from enum import Enum
-from Classes.Member import Member
+from Classes.member import Member
 
 
 class Vote(Enum):

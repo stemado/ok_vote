@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from Configuration.OkLegislativeConfig import base_house_support_docs_url
+from Configuration.ok_legislative_config import base_house_support_docs_url
 from Helpers.web_data_helper import get_house_doc_from_link, extract_page_text
 
 
