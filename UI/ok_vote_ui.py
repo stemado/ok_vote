@@ -29,7 +29,7 @@ class OkVoteUi(QWidget):
         self.url_label = QLabel('<strong>URL to House Journal Doc File</strong>')
         layout.addWidget(self.url_label)
         layout.setAlignment(self.url_label, Qt.AlignCenter)
-        self.url_link_label = QLabel('<strong>Copy and Paste Any .doc File Link From:</strong><br><br>http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/\n\nThe Final File Is Saved To Your Downloads Folder As CSV')
+        self.url_link_label = QLabel('<strong>Copy and Paste Any .doc File Link From:</strong><br><br>http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/<br><br>The Final File Is Saved To Your Downloads Folder As CSV')
         layout.addWidget(self.url_link_label)
         layout.setAlignment(self.url_link_label, Qt.AlignCenter)
         # URL For Doc File Text Box
