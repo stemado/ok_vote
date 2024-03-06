@@ -1,8 +1,12 @@
+from urllib.parse import urljoin
+
+import mechanicalsoup
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel
 
 from Helpers.link_helper import extract_links
+from Helpers.ok_website_helper import get_all_links, base_url
 from Helpers.web_data_helper import get_house_doc_from_link, extract_page_text
 from Services.Files.file_writer import write_links_to_file
 from Services.VoteDetails.vote_parser import vote_parser
@@ -34,6 +38,7 @@ class OkVoteUi(QWidget):
         layout.setAlignment(self.url_link_label, Qt.AlignCenter)
         # URL For Doc File Text Box
         default_doc = 'http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/2022%20HLeg%20Day22.doc'
+
         self.text_box = QLineEdit(self)
         self.text_box.setText(default_doc)
         self.text_box.setFixedHeight(50)
@@ -51,21 +56,25 @@ class OkVoteUi(QWidget):
         layout.setAlignment(self.single_doc_button, Qt.AlignCenter)
 
         # Get All Doc Urls Button
-        # self.button = QPushButton('Update All Doc Urls', self)
-        # self.button.setFixedHeight(40)
-        # self.button.clicked.connect(self.on_click)
-        # layout.addWidget(self.button)
-        # layout.setAlignment(self.button, Qt.AlignCenter)
+        self.process_all_urls_button = QPushButton('Process All Docs', self)
+        self.process_all_urls_button.setFixedHeight(180)
+        self.process_all_urls_button.setFixedWidth(360)
+        self.process_all_urls_button.clicked.connect(self.on_click)
+        layout.addWidget(self.process_all_urls_button)
+        layout.setAlignment(self.process_all_urls_button, Qt.AlignCenter)
 
         self.setLayout(layout)
 
     def on_click(self):
         # Action to perform when button is clicked
-        entered_text = self.text_box.text()
-        print(f"URL: {entered_text}")
-        urls = self.return_all_oklahoma_files_locally()
+        _url = self.text_box.text()
+        print(f"URL: {_url}")
+        urls = self.return_all_oklahoma_files_locally(_url)
+        urls.pop(0) # skip first because it is base url
         for url in urls:
-            doc_save_path = self.return_oklahoma_file_locally(url)
+            full_url = urljoin(base_url, url)
+            print(full_url)
+            doc_save_path = self.return_oklahoma_file_locally(full_url)
             vote_parser(doc_save_path)
 
     def on_get_url_click(self):
@@ -79,13 +88,20 @@ class OkVoteUi(QWidget):
         doc_save_path = get_house_doc_from_link(url)
         return doc_save_path
 
-    def return_all_oklahoma_files_locally(self):
-        base_url = get_house_doc_from_link('')
-        page_content = extract_page_text(base_url)
-        all_links = extract_links(page_content)
+    # https://chat.openai.com/share/e/b1fb4092-15bc-41ec-b176-bc0020322db2
+    def return_all_oklahoma_files_locally(self, url):
+        # Create a browser object
+        browser = mechanicalsoup.Browser()
 
-        # Skip first link since it is base url
-        all_links.pop(0)
+        # Fetch the webpage
+        page = browser.get(url)
+
+        # Parse the page
+        soup = page.soup
+
+        # Extract all <a> links
+        all_links = [a.get('href') for a in soup.find_all('a') if a.get('href') is not None]
+        print(all_links)
         # Write urls
         return all_links
         # write_links_to_file(all_links, 'tests/SampleOutput/house_vote_doc_urls.txt')

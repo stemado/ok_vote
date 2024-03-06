@@ -19,6 +19,7 @@ def get_house_txt_from_link(url):
 
     return response.text
 
+
 def get_house_doc_from_link(url):
     # Get the user's home directory
     home_directory = os.path.expanduser('~')
