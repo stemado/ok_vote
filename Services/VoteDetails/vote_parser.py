@@ -40,10 +40,11 @@ def vote_parser(doc_file):
         dict_content = [item.to_dict() for item in vote_details]
 
 
-        new_extension = ".csv"
-        new_filename = docx_file.rsplit('.', 1)[0] + new_extension
+        # Ignoring this section because I am going to pull the records from the table and store as csv from there
+        # new_extension = ".csv"
+        # new_filename = docx_file.rsplit('.', 1)[0] + new_extension
         # But for now, just write the vote_details to a csv
-        write_to_csv(new_filename, dict_content)
+        # write_to_csv(new_filename, dict_content)
 
     except Exception as error:
         print(f"An exception occurred save vote detail to the database {str(vote_detail)}:", error)  #
