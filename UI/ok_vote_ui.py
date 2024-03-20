@@ -55,8 +55,18 @@ class OkVoteUi(QWidget):
         layout.addWidget(self.single_doc_button)
         layout.setAlignment(self.single_doc_button, Qt.AlignCenter)
 
+
+        # Label for the URL Text Box
+        self.house_url_label = QLabel('<strong>URL to House Journal Doc File</strong>')
+        layout.addWidget(self.house_url_label)
+        layout.setAlignment(self.house_url_label, Qt.AlignCenter)
+        self.house_url_link_label = QLabel('<strong>Will Extract All .doc files from: http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/<br><br>The Final Files Are Saved To Your Downloads Folder')
+        layout.addWidget(self.house_url_link_label)
+        layout.setAlignment(self.house_url_link_label, Qt.AlignCenter)
+        # URL For Doc File Text Box
+
         # Get All Doc Urls Button
-        self.process_all_urls_button = QPushButton('Process All Docs', self)
+        self.process_all_urls_button = QPushButton('Process All House Docs', self)
         self.process_all_urls_button.setFixedHeight(180)
         self.process_all_urls_button.setFixedWidth(360)
         self.process_all_urls_button.clicked.connect(self.on_click)
@@ -90,6 +100,11 @@ class OkVoteUi(QWidget):
 
     # https://chat.openai.com/share/e/b1fb4092-15bc-41ec-b176-bc0020322db2
     def return_all_oklahoma_files_locally(self, url):
+
+        # Ensure we are only fetching the root directory of House (or later Senate)
+        if "JOURNAL/House" in url:
+            url = 'http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/'
+
         # Create a browser object
         browser = mechanicalsoup.Browser()
 
