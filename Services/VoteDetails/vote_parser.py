@@ -15,6 +15,10 @@ def vote_parser(doc_file):
 
     general_orders = split_text_by_general_order(text)
 
+    # if general_orders is empty return
+    if not general_orders:
+        return
+
     unique_id = 1
     for general_order in general_orders:
         vote_detail = VoteDetail(unique_id, None, None, None, None, None, None, None, None, location)

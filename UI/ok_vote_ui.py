@@ -13,6 +13,7 @@ from Services.VoteDetails.vote_parser import vote_parser
 
 
 # https://chat.openai.com/share/e/b5a728ef-a904-4f82-bd8a-4f59a6465716
+# Vardhan helped me with the logic for parsing the data
 class OkVoteUi(QWidget):
     def __init__(self):
         super().__init__()
@@ -56,14 +57,13 @@ class OkVoteUi(QWidget):
         layout.setAlignment(self.single_doc_button, Qt.AlignCenter)
 
 
-        # Label for the URL Text Box
+        # Label for the URL Get All URLS Text Box
         self.house_url_label = QLabel('<strong>URL to House Journal Doc File</strong>')
         layout.addWidget(self.house_url_label)
         layout.setAlignment(self.house_url_label, Qt.AlignCenter)
         self.house_url_link_label = QLabel('<strong>Will Extract All .doc files from: http://webserver1.lsb.state.ok.us/cf/2021-22%20JOURNAL/House/<br><br>The Final Files Are Saved To Your Downloads Folder')
         layout.addWidget(self.house_url_link_label)
         layout.setAlignment(self.house_url_link_label, Qt.AlignCenter)
-        # URL For Doc File Text Box
 
         # Get All Doc Urls Button
         self.process_all_urls_button = QPushButton('Process All House Docs', self)
@@ -83,7 +83,7 @@ class OkVoteUi(QWidget):
         urls.pop(0) # skip first because it is base url
         for url in urls:
             full_url = urljoin(base_url, url)
-            print(full_url)
+            print('Now parsing: ' + full_url)
             doc_save_path = self.return_oklahoma_file_locally(full_url)
             vote_parser(doc_save_path)
 

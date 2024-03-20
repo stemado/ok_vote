@@ -50,7 +50,6 @@ class VoteDetail:
 
     def parse(self, text: [str]):
         previous_line = None
-        all_members = list[Member]
         for line in text:
             if line == "GENERAL ORDER" or line == '':
                 continue
