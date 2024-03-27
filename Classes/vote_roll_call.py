@@ -30,3 +30,22 @@ class VoteRollCall:
     def __str__(self):
         return f"VoteRollCall({self.unique_index}, {self.votes_detail_index}, {self.bill_number}, {self.member}, {self.vote}, {self.vote_type}, {self.location}, {self.date}, {self.time})"
 
+
+# https://chat.openai.com/share/e/e4a20aca-b855-427a-a794-364291643351
+def create_vote_roll_call(name, unique_index, votes_detail_index, bill_number, vote, vote_type, location, date, time):
+    """
+    Create a VoteRollCall instance with the given parameters.
+
+    :param name: Name of the member.
+    :param unique_index, votes_detail_index, bill_number, vote, vote_type, location, date, time: Other properties of VoteRollCall.
+    :return: A VoteRollCall instance.
+    """
+    return VoteRollCall(unique_index, votes_detail_index, bill_number, name, vote, vote_type, location, date, time)
+
+# Example usage
+# names = ["John Doe", "Jane Smith", "Alex Johnson"]
+# vote_roll_calls = []
+# for name in names:
+#     # Assuming other properties are provided here in some way
+#     vote_roll_call = create_vote_roll_call(name, ...)
+#     vote_roll_calls.append(vote_roll_call)

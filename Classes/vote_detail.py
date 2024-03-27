@@ -1,7 +1,9 @@
 import datetime
 import re
 from enum import Enum
-from Classes.member import Member
+from Classes.member import Member, create_member
+from Classes.vote_roll_call import create_vote_roll_call
+from Database.db_config import DbContext
 
 
 class Vote(Enum):
@@ -32,6 +34,7 @@ class VoteDetail:
         :param result: Outcome of the vote (Pass or Fail).
         :param location: Location of the vote (House Floor, Senate Floor, Committee Name).
         """
+        self.db_context = DbContext()
         self.unique_index = unique_index
         self.bill_number = bill_number
         self.vote_type = vote_type
@@ -64,22 +67,58 @@ class VoteDetail:
             if bill_detail.isupper() and self.bill_number is not None:
                 self.vote_type = bill_detail.upper()
 
-            # set result (pass,fail)
             if previous_line is not None and previous_line.startswith('Vacancy'):
                 self.result = self.extract_pass_fail(line)
 
-            # sending entire text body since we now have this split
-            # and should be faster to parse now
+            if self.excused is None:
+                excused_members = self.extract_votes(text, Vote.EXCUSED)
+                self.excused = len(excused_members)
+                self.to_vote_roll_call(excused_members, Vote.EXCUSED)
+
+            if self.vacant is None:
+                vacant_members = self.extract_votes(text, Vote.VACANCY)
+                self.vacant = len(vacant_members)
+                self.to_vote_roll_call(vacant_members, Vote.VACANCY)
+
+            if self.cp is None:
+                cp_members = self.extract_votes(text, Vote.CP)
+                self.cp = len(cp_members)
+                self.to_vote_roll_call(cp_members, Vote.CP)
+
             if self.yea is None:
                 aye_members = self.extract_votes(text, Vote.AYE)
                 self.yea = len(aye_members)
+                self.to_vote_roll_call(aye_members, Vote.AYE)
 
             if self.nay is None:
                 nay_members = self.extract_votes(text, Vote.NAY)
                 self.nay = len(nay_members)
 
+                self.to_vote_roll_call(nay_members, Vote.NAY)
+
             # store previous line for referencing
             previous_line = line
+
+    def to_member(self, names):
+        members = []
+        for name in names:
+            member = create_member(0, self.location, )
+
+    def set_chamber(self, location):
+        if 'House' in location:
+            return 'House'
+        if 'Senate' in location:
+            return 'Senate'
+    def to_vote_roll_call(self, names, vote: Vote):
+        vote_roll_calls = []
+        for name in names:
+            # Assuming other properties are provided here in some way
+            vote_roll_call = create_vote_roll_call(name, self.unique_index, 0, self.bill_number, vote.value.replace(':', ''), self.vote_type, self.date, self.time, self.result)
+            vote_roll_calls.append(vote_roll_call)
+        self.db_context.insert_vote_roll_call(vote_roll_calls)
+
+
+
 
     def extract_votes(self, lines, vote_type: Vote):
         votes = []
@@ -94,7 +133,6 @@ class VoteDetail:
                 votes.extend(names)
 
         return votes
-
 
     def extract_pass_fail(self, text):
         """

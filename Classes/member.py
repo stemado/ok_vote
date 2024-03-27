@@ -17,8 +17,21 @@ class Member:
         self.chamber = chamber
         self.district = district
         self.member_name = member_name
-        self.title = member_name
+        self.title = title
 
     def __str__(self):
         return f"Member({self.unique_index}, {self.chamber}, {self.district}, {self.member_name}, {self.title})"
+
+
+def create_member(unique_index, chamber, district, member_name, title):
+    """
+
+    :param unique_index:
+    :param chamber:
+    :param district:
+    :param member_name:
+    :param title:
+    :return:
+    """
+    return Member(unique_index, chamber, district, member_name, title)
 
