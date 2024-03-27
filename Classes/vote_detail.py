@@ -1,9 +1,10 @@
+import csv
 import datetime
+import os
 import re
 from enum import Enum
 from Classes.member import Member, create_member
 from Classes.vote_roll_call import create_vote_roll_call
-from Database.db_config import DbContext
 
 
 class Vote(Enum):
@@ -34,7 +35,6 @@ class VoteDetail:
         :param result: Outcome of the vote (Pass or Fail).
         :param location: Location of the vote (House Floor, Senate Floor, Committee Name).
         """
-        self.db_context = DbContext()
         self.unique_index = unique_index
         self.bill_number = bill_number
         self.vote_type = vote_type
@@ -109,16 +109,21 @@ class VoteDetail:
             return 'House'
         if 'Senate' in location:
             return 'Senate'
+
     def to_vote_roll_call(self, names, vote: Vote):
+        downloads_folder = os.path.join(os.path.expanduser('~'), 'Downloads')
+        vote_roll_call_csv_path = os.path.join(downloads_folder, "vote_roll_call.csv")
         vote_roll_calls = []
+        id = 1
         for name in names:
             # Assuming other properties are provided here in some way
-            vote_roll_call = create_vote_roll_call(name, self.unique_index, 0, self.bill_number, vote.value.replace(':', ''), self.vote_type, self.date, self.time, self.result)
+            vote_roll_call = create_vote_roll_call(name, self.unique_index, id, self.bill_number,
+                                                   vote.value.replace(':', ''), self.vote_type, self.date, self.time,
+                                                   self.result)
             vote_roll_calls.append(vote_roll_call)
-        self.db_context.insert_vote_roll_call(vote_roll_calls)
+            id = id + 1
 
-
-
+        self.write_votes_to_csv(vote_roll_calls, vote_roll_call_csv_path)
 
     def extract_votes(self, lines, vote_type: Vote):
         votes = []
@@ -177,3 +182,35 @@ class VoteDetail:
             "date": self.date.isoformat() if self.date is not None else '',
             "time": self.time.isoformat() if self.time is not None else ''
         }
+
+
+    @staticmethod
+    def write_votes_to_csv(vote_roll_calls, filename):
+        """
+        Append vote roll call data to a CSV file. If the file doesn't exist, it creates it.
+
+        :param vote_roll_calls: List of VoteRollCall objects.
+        :param filename: Name of the CSV file.
+        """
+        try:
+            # Check if the file already exists to determine if we need to write headers
+            file_exists = os.path.isfile(filename)
+
+            with open(filename, mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+
+                # Write the header only if the file didn't exist
+                if not file_exists:
+                    writer.writerow(
+                        ['Unique Index', 'Votes Detail Index', 'Bill Number', 'Member', 'Vote', 'Vote Type', 'Location',
+                         'Date', 'Time'])
+
+                # Append vote roll call data
+                for vote in vote_roll_calls:
+                    writer.writerow(
+                        [vote.unique_index, vote.votes_detail_index, vote.bill_number, vote.member, vote.vote,
+                         vote.vote_type, vote.location, vote.date, vote.time])
+
+            print(f"Vote roll call data successfully appended to {filename}")
+        except Exception as e:
+            print(f"An error occurred while writing to CSV: {e}")
